@@ -841,6 +841,7 @@ class Face_Recognizer:
         self.face_features_known_list = []
         # / Save the name of faces in the database
         self.face_name_known_list = []
+        self.face_email_known_list = []
 
         #  List to save centroid positions of ROI in frame N-1 and N
         self.last_frame_face_centroid_list = []
@@ -863,20 +864,46 @@ class Face_Recognizer:
         self.current_frame_face_feature_list = []
 
         # Similarity threshold
-        self.similarity_threshold = 0.6
+        self.similarity_threshold = 0.7
 
     #  "features_all.csv"  / Get known faces from "features.all.csv"
 
     absent_students = []
+
+    # def send_email_notification(self):
+    #     if self.absent_students:
+    #         subject = "Attendance Notification"
+    #         body = "Dear Parent,\n\nYour child was present today."
+    #
+    #         msg = MIMEMultipart()
+    #         msg['From'] = self.email_sender
+    #         msg['To'] = ', '.join(self.absent_students)
+    #         msg['Subject'] = subject
+    #         msg.attach(MIMEText(body, 'plain'))
+    #
+    #         try:
+    #             server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+    #             server.starttls()
+    #             server.login(self.email_sender, self.email_password)
+    #             text = msg.as_string()
+    #             server.sendmail(self.email_sender, self.absent_students, text)
+    #             server.quit()
+    #             logging.info("Email notification sent to present students.")
+    #         except Exception as e:
+    #             logging.error(f"Failed to send email notification. Error: {str(e)}")
 
     def send_email_notification(self):
         if self.absent_students:
             subject = "Attendance Notification"
             body = "Dear Parent,\n\nYour child was present today."
 
+            # Map names to email addresses
+            absent_students_emails = [self.face_email_known_list[self.face_name_known_list.index(name)] for name in
+                                      self.absent_students]
+
             msg = MIMEMultipart()
             msg['From'] = self.email_sender
-            msg['To'] = ', '.join(self.absent_students)
+            msg['To'] = ', '.join(absent_students_emails)
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain'))
 
@@ -885,9 +912,9 @@ class Face_Recognizer:
                 server.starttls()
                 server.login(self.email_sender, self.email_password)
                 text = msg.as_string()
-                server.sendmail(self.email_sender, self.absent_students, text)
+                server.sendmail(self.email_sender, absent_students_emails, text)
                 server.quit()
-                logging.info("Email notification sent to present students.")
+                logging.info("Email notification sent to absent students.")
             except Exception as e:
                 logging.error(f"Failed to send email notification. Error: {str(e)}")
 
@@ -901,7 +928,7 @@ class Face_Recognizer:
 
                 # Extract email (assumed to be at the beginning of each row)
                 email = csv_rd.iloc[i][0].split('_')[1]  # Assuming email is in the format "name_email"
-
+                name = csv_rd.iloc[i][0].split('_')[0]
                 # Extract features
                 for j in range(1, 129):
                     if csv_rd.iloc[i][j] == '':
@@ -909,18 +936,20 @@ class Face_Recognizer:
                     else:
                         features_someone_arr.append(csv_rd.iloc[i][j])
 
-                self.face_name_known_list.append(email)
+                self.face_name_known_list.append(name)
+                self.face_email_known_list.append(email)
                 self.face_features_known_list.append(features_someone_arr)
 
                 # Print email for debugging purposes
                 print(f"Student {i + 1} - Email: {email}")
+                print(f"Student {i + 1} - Name: {name}")
+
 
             logging.info("Faces in Database: %d", len(self.face_features_known_list))
             return 1
         else:
             logging.warning("'features_all.csv' not found!")
-            logging.warning("Please run 'get_faces_from_camera.py' "
-                            "and 'features_extraction_to_csv.py' before 'face_reco_from_camera.py'")
+
             return 0
 
     def update_fps(self):
@@ -938,7 +967,13 @@ class Face_Recognizer:
         dot_product = np.dot(feature_1, feature_2)
         norm_feature_1 = np.linalg.norm(feature_1)
         norm_feature_2 = np.linalg.norm(feature_2)
+        # print("Feature 1:", feature_1)
+        # print("Feature 2:", feature_2)
+        # print("Dot Product:", dot_product)
+        # print("Norm of Feature 1:", norm_feature_1)
+        # print("Norm of Feature 2:", norm_feature_2)
         similarity = dot_product / (norm_feature_1 * norm_feature_2)
+        print("Cosine Similarity:", similarity)  # Print the similarity value
         return similarity
 
     def centroid_tracker(self):
@@ -1099,6 +1134,7 @@ class Face_Recognizer:
                     absent_students = [name for name in self.face_name_known_list if name == 'unknown']
                     if absent_students:
                         self.send_email_notification(absent_students)
+                        print("Absent Student:"+ absent_students)
                     break
 
                 self.update_fps()
