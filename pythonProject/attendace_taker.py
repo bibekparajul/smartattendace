@@ -84,7 +84,7 @@ class Face_Recognizer:
         self.current_frame_face_feature_list = []
 
         # Similarity threshold
-        self.similarity_threshold = 0.93
+        self.similarity_threshold = 0.94
         # List to keep track of absent students
         self.absent_students = []
 
@@ -239,7 +239,7 @@ class Face_Recognizer:
         self.frame_start_time = now
 
     @staticmethod
-    def cosine_similarity(feature_1, feature_2):
+    def cosine_similarity(feature_1, feature_2):  # feature_1 come from compute_face_descriptor method of face_reco_model
         dot_product = np.dot(feature_1, feature_2)
         norm_feature_1 = np.linalg.norm(feature_1)
         norm_feature_2 = np.linalg.norm(feature_2)
@@ -376,7 +376,7 @@ class Face_Recognizer:
                         logging.debug("Get faces in this frame and do face recognition")
                         self.current_frame_face_name_list = []
                         for i in range(len(faces)):
-                            shape = predictor(img_rd, faces[i])
+                            shape = predictor(img_rd, faces[i])    #feature_1 comes from here
                             self.current_frame_face_feature_list.append(
                                 face_reco_model.compute_face_descriptor(img_rd, shape))
                             self.current_frame_face_name_list.append("unknown")
@@ -394,7 +394,7 @@ class Face_Recognizer:
 
                             for i in range(len(self.face_features_known_list)):
                                 if str(self.face_features_known_list[i][0]) != '0.0':
-                                    similarity_tmp = self.cosine_similarity(
+                                    similarity_tmp = self.cosine_similarity(            #Temporary similarity calculation
                                         self.current_frame_face_feature_list[k],
                                         self.face_features_known_list[i]
                                     )

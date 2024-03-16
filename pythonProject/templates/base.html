@@ -72,14 +72,14 @@
 
 <body>
     <div class="jumbotron">
-        <h1 class="display-4">Attendance Tracker Sheet</h1>
+        <h1 class="display-4">Attendance Sheet</h1>
     </div>
 
     <div class="container">
         <div class="form-container">
             <form action="/attendance" method="POST" id="attn-form">
                 <div class="mb-3">
-                    <label for="selected_date" class="form-label">Select Date:</label>
+                    <label for="selected_date" class="form-label">Please select date for viewing attendance:</label>
                     <input type="date" class="form-control" id="selected_date" name="selected_date" required
                         value="{{ selected_date }}">
                 </div>

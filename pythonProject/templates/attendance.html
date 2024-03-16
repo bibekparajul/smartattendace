@@ -1,0 +1,231 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Attendance Details</title>-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;-->
+<!--            background-color: #f8f9fa;-->
+<!--            color: #343a40;-->
+<!--        }-->
+
+<!--        .container {-->
+<!--            margin-top: 50px;-->
+<!--        }-->
+
+<!--        .table {-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+
+<!--        .table th,-->
+<!--        .table td {-->
+<!--            vertical-align: middle;-->
+<!--            text-align: center;-->
+<!--        }-->
+
+<!--        .present {-->
+<!--            background-color: green;-->
+<!--        }-->
+
+<!--        .absent {-->
+<!--            background-color: red;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+
+<!--<body>-->
+<!--    <div class="container">-->
+<!--        <h2 class="text-center">Attendance Details for {{ username }}</h2>-->
+<!--        {% if no_data %}-->
+<!--        <div class="alert alert-info" role="alert">-->
+<!--            No attendance data available.-->
+<!--        </div>-->
+<!--        {% else %}-->
+<!--        <table class="table table-striped">-->
+<!--            <thead>-->
+<!--                <tr>-->
+<!--                    <th>Date</th>-->
+<!--                    <th>Time Present</th>-->
+<!--                </tr>-->
+<!--            </thead>-->
+<!--&lt;!&ndash;            <tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                {% for attendance_entry in attendance_data %}&ndash;&gt;-->
+<!--&lt;!&ndash;                <tr class="{{ 'present' if attendance_entry[1] == 'Present' else 'absent' }}">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <td>{{ attendance_entry[0] }}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <td>{{ attendance_entry[1] }}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                {% endfor %}&ndash;&gt;-->
+<!--&lt;!&ndash;            </tbody>&ndash;&gt;-->
+<!--            <tbody>-->
+<!--    {% for attendance_entry in attendance_data %}-->
+<!--    <tr class="{% if attendance_entry[1] == 'Present' %} present {% else %} absent {% endif %}">-->
+<!--        <td>{{ attendance_entry[0] }}</td>-->
+<!--        <td>{{ attendance_entry[1] }}</td>-->
+<!--    </tr>-->
+<!--    {% endfor %}-->
+<!--</tbody>-->
+
+<!--        </table>-->
+<!--        <div class="text-center">-->
+<!--            <h4>Attendance Percentage: {{ attendance_percentage }}%</h4>-->
+<!--        </div>-->
+<!--        {% endif %}-->
+<!--    </div>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>-->
+<!--</body>-->
+
+<!--</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        h4{
+        font-weight: bold;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .present {
+            background-color: green;
+        }
+
+        .absent {
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="text-center">Welcome {{ username }},
+
+            <br/>Your attendance details are shown below</h2>
+        {% if no_data %}
+        <div class="alert alert-info" role="alert">
+            No attendance data available.
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+             <div class="col-md-6 text-end">
+            <a href="/logout" class="btn btn-danger logout-btn">Logout</a>
+        </div>
+        </div>
+                <div class="text-center">
+            <h4>Attendance Percentage: {{ attendance_percentage }}%</h4>
+        </div>
+        </div>
+        <table class="table table-striped" id="attendance-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                     <th>Time Present</th>
+                    <th>Status</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for attendance_entry in attendance_data %}
+                <tr>
+                    <td>{{ attendance_entry[0] }}</td>
+                    <td>{{ attendance_entry[2] }}</td>
+                                        <td class="{{ 'present' if attendance_entry[1] == 'Present' else 'absent' }}">
+                        {{ attendance_entry[1] }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+        {% endif %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var rows = document.querySelectorAll('#attendance-table tbody tr');
+            rows.forEach(function (row) {
+                var statusCell = row.cells[1];
+                var status = statusCell.textContent.trim();
+                if (status === 'Present') {
+                    statusCell.classList.add('present');
+                } else {
+                    statusCell.classList.add('absent');
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var presentCount = {{ present_count }};
+            var absentCount = {{ total_days - present_count }};
+
+            // Chart
+            var ctx = document.getElementById('attendanceChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Present', 'Absent'],
+                    datasets: [{
+                        data: [presentCount, absentCount],
+                        backgroundColor: [
+                            'green',
+                            'red'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Attendance Distribution'
+                        }
+                    }
+                }
+            });
+        });
+            // Logout functionality
+        document.querySelector('.logout-btn').addEventListener('click', function () {
+                window.location.href = '/logout';
+        });
+    </script>
+</body>
+
+</html>
