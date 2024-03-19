@@ -9,23 +9,22 @@ import tkinter as tk
 from tkinter import font as tkFont
 from PIL import Image, ImageTk
 
-# Use frontal face detector of Dlib
 detector = dlib.get_frontal_face_detector()
 
-# Create the class called Face_register and inside this create the constructor
+
 class Face_Register:
     def __init__(self):
 
-        self.current_frame_faces_cnt = 0  #  cnt for counting faces in current frame
-        self.existing_faces_cnt = 0  # cnt for counting saved faces
-        self.ss_cnt = 0  #  cnt for screen shots
+        self.current_frame_faces_cnt = 0
+        self.existing_faces_cnt = 0
+        self.ss_cnt = 0
 
         # Tkinter GUI
         self.win = tk.Tk()
         self.win.title("Register Faces")
 
         # Giving Window size here
-        self.win.geometry("1000x600")
+        self.win.geometry("1060x600")
 
         # GUI left part
         self.frame_left_camera = tk.Frame(self.win)
@@ -52,6 +51,8 @@ class Face_Register:
         self.path_photos_from_camera = "data/data_faces_from_camera/"
         self.current_face_dir = ""
         self.font = cv2.FONT_ITALIC
+        self.font_button = tkFont.Font(size=16)  # Set font size here
+
 
         # Current frame and face ROI position
         self.current_frame = np.ndarray
@@ -75,8 +76,6 @@ class Face_Register:
 
         self.cap = cv2.VideoCapture(0)  # Get video stream from camera
 
-        # self.cap = cv2.VideoCapture("test.mp4")   # Input local video
-
     # #  Delete old face folders
     # def GUI_clear_data(self):
     #     #  "/data_faces_from_camera/person_x/"...
@@ -94,10 +93,33 @@ class Face_Register:
     #     self.create_face_folder()
     #     self.label_cnt_face_in_database['text'] = str(self.existing_faces_cnt)
 
+    # def GUI_get_input_name(self):
+    #     self.input_name_char = self.input_name.get()
+    #     self.input_email_char = self.input_email.get()
+    #     self.create_face_folder(self.input_email_char)
+    #     self.label_cnt_face_in_database['text'] = str(self.existing_faces_cnt)
+
     def GUI_get_input_name(self):
-        self.input_name_char = self.input_name.get()
-        self.input_email_char = self.input_email.get()
+        self.input_name_char = self.input_name.get().strip()  # Get the input name and remove leading/trailing whitespaces
+        self.input_email_char = self.input_email.get().strip()  # Get the input email and remove leading/trailing whitespaces
+
+        # Check if both name and email are provided
+        if not self.input_name_char or not self.input_email_char:
+            self.label_warning['text'] = "Please provide both name and email"
+            self.label_warning['fg'] = 'red'
+            return
+
+        # Check if the name already exists
+        existing_names = [name.split('_')[2] for name in os.listdir("data/data_faces_from_camera/") if
+                          name.startswith("person")]
+        if self.input_name_char in existing_names:
+            self.label_warning['text'] = "Name already exists"
+            self.label_warning['fg'] = 'red'
+            return
+
+        # Create face folder if validation passes
         self.create_face_folder(self.input_email_char)
+        self.label_warning['text'] = ""  # Clear any previous warning
         self.label_cnt_face_in_database['text'] = str(self.existing_faces_cnt)
 
     # def GUI_info(self):
@@ -159,13 +181,13 @@ class Face_Register:
         tk.Label(self.frame_right_info, text="FPS: ").grid(row=1, column=0, sticky=tk.W, padx=5, pady=2)
         self.label_fps_info.grid(row=1, column=1, sticky=tk.W, padx=5, pady=2)
 
-        tk.Label(self.frame_right_info, text="Faces in the database: ").grid(row=2, column=0, sticky=tk.W, padx=5,
-                                                                             pady=2)
-        self.label_cnt_face_in_database.grid(row=2, column=1, sticky=tk.W, padx=5, pady=2)
+        # tk.Label(self.frame_right_info, text="Faces in the database: ").grid(row=2, column=0, sticky=tk.W, padx=5,
+        #                                                                      pady=2)
+        # self.label_cnt_face_in_database.grid(row=2, column=1, sticky=tk.W, padx=5, pady=2)
 
-        tk.Label(self.frame_right_info,
-                 text="Faces in the current frame: ").grid(row=3, column=0, columnspan=2, sticky=tk.W, padx=5, pady=2)
-        self.label_face_cnt.grid(row=3, column=2, columnspan=3, sticky=tk.W, padx=5, pady=2)
+        # tk.Label(self.frame_right_info,
+        #          text="Faces in the current frame: ").grid(row=3, column=0, columnspan=2, sticky=tk.W, padx=5, pady=2)
+        # self.label_face_cnt.grid(row=3, column=2, columnspan=3, sticky=tk.W, padx=5, pady=2)
 
         self.label_warning.grid(row=4, column=0, columnspan=3, sticky=tk.W, padx=5, pady=2)
 
@@ -173,25 +195,25 @@ class Face_Register:
                  font=self.font_step_title,
                  text="Input Details").grid(row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
 
-        tk.Label(self.frame_right_info, text="Name: ").grid(row=6, column=0, sticky=tk.W, padx=5, pady=0)
-        self.input_name.grid(row=6, column=1, sticky=tk.W, padx=0, pady=2)
+        tk.Label(self.frame_right_info, text="Name: ", font=('Arial', 10, 'bold')).grid(row=6, column=0, sticky=tk.W, padx=5, pady=0)
+        self.input_name.grid(row=6, column=1, sticky=tk.W, padx=0, pady=4, ipadx=24, ipady=8)
 
-        tk.Label(self.frame_right_info, text="Email: ").grid(row=7, column=0, sticky=tk.W, padx=5, pady=0)
-        self.input_email.grid(row=7, column=1, sticky=tk.W, padx=0, pady=2)
+        tk.Label(self.frame_right_info, text="Email: ", font=('Arial', 10, 'bold')).grid(row=7, column=0, sticky=tk.W, padx=5, pady=0)
+        self.input_email.grid(row=7, column=1, sticky=tk.W, padx=0, pady=8, ipadx=24, ipady=8)
 
         tk.Button(self.frame_right_info,
                   text='Input',
-                  command=self.GUI_get_input_name).grid(row=7, column=2, padx=5)
+                  command=self.GUI_get_input_name, bg="#2ecc71", fg="white", width=16, height=1, font=('Courier New', 12, 'bold')).grid(row=8, column=0, padx=5)
 
         tk.Label(self.frame_right_info,
                  font=self.font_step_title,
-                 text="Save face image").grid(row=8, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
+                 text="Save face image").grid(row=9, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
 
         tk.Button(self.frame_right_info,
                   text='Save current face',
-                  command=self.save_current_face).grid(row=9, column=0, columnspan=3, sticky=tk.W)
+                  command=self.save_current_face, bg="#2ecc71", fg="white", width=16, height=1, font=('Courier New', 12, 'bold')).grid(row=10, column=0, padx=5, columnspan=3, sticky=tk.W)
 
-        self.log_all.grid(row=10, column=0, columnspan=20, sticky=tk.W, padx=5, pady=20)
+        self.log_all.grid(row=11, column=0, columnspan=20, sticky=tk.W, padx=5, pady=20)
 
         self.frame_right_info.pack()
 
@@ -308,11 +330,11 @@ class Face_Register:
                     logging.info("%-40s %s/img_face_%s.jpg", "Save into：",
                                  str(self.current_face_dir), str(self.ss_cnt) + ".jpg")
                 else:
-                    self.log_all["text"] = "Please do not out of range!"
+                    self.log_all["text"] = "Out of range!"
             else:
                 self.log_all["text"] = "No face in current frame!"
         else:
-            self.log_all["text"] = "Please run step 2!"
+            self.log_all["text"] = "Please fill the details first.."
 
     def get_frame(self):
         try:

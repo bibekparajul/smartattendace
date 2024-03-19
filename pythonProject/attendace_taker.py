@@ -75,7 +75,6 @@ class Face_Recognizer:
         self.last_frame_face_cnt = 0
         self.current_frame_face_cnt = 0
 
-        # Save the e-distance for faceX when recognizing
         self.current_frame_face_X_similarity_list = []
 
         # Save the positions and names of current faces captured
@@ -84,7 +83,7 @@ class Face_Recognizer:
         self.current_frame_face_feature_list = []
 
         # Similarity threshold
-        self.similarity_threshold = 0.94
+        self.similarity_threshold = 0.96
         # List to keep track of absent students
         self.absent_students = []
 
@@ -271,7 +270,7 @@ class Face_Recognizer:
     def draw_note(self, img_rd):
         cv2.putText(img_rd, "Smart Attendance", (20, 40), self.font, 1, (255, 255, 255), 1,
                     cv2.LINE_AA)
-        cv2.putText(img_rd, "Q: Quit", (20, 450), self.font, 0.8, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(img_rd, "Press w to Quit", (20, 450), self.font, 0.8, (255, 255, 255), 1, cv2.LINE_AA)
 
         # for i in range(len(self.current_frame_face_name_list)):
         #     name = self.current_frame_face_name_list[i]
@@ -420,7 +419,7 @@ class Face_Recognizer:
 
                         self.draw_note(img_rd)
 
-                if kk == ord('q'):
+                if kk == ord('w'):
                     # absent_students = [name for name in self.face_name_known_list if name == 'unknown']
                     # if nam variable is null send notification as absent to all
                     # if nam variable has some data the send email except that name
