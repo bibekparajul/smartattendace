@@ -27,7 +27,7 @@ conn = sqlite3.connect("attendance.db")
 cursor = conn.cursor()
 
 # Create a table for the current date
-current_date = datetime.datetime.now().strftime("%Y_%m_%d")  # Replace hyphens with underscores
+current_date = datetime.datetime.now().strftime("%Y_%m_%d")  
 table_name = "attendance"
 create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name} (name TEXT, time TEXT, date DATE, UNIQUE(name, date))"
 cursor.execute(create_table_sql)
@@ -83,7 +83,7 @@ class Face_Recognizer:
         self.current_frame_face_feature_list = []
 
         # Similarity threshold
-        self.similarity_threshold = 0.96
+        self.similarity_threshold = 0.95
         # List to keep track of absent students
         self.absent_students = []
 

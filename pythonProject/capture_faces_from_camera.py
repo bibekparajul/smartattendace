@@ -8,7 +8,7 @@ import logging
 import tkinter as tk
 from tkinter import font as tkFont
 from PIL import Image, ImageTk
-
+import re
 detector = dlib.get_frontal_face_detector()
 
 
@@ -106,6 +106,14 @@ class Face_Register:
         # Check if both name and email are provided
         if not self.input_name_char or not self.input_email_char:
             self.label_warning['text'] = "Please provide both name and email"
+            self.label_warning['fg'] = 'red'
+            return
+
+
+        # Validate email format using regex
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, self.input_email_char):
+            self.label_warning['text'] = "Invalid email format"
             self.label_warning['fg'] = 'red'
             return
 
